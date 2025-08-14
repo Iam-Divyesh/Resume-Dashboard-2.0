@@ -55,7 +55,7 @@
             .sidebar {
                   background: var(--bg-white);
                   border-right: 1px solid var(--border-color);
-                  min-height: 100vh;
+                  height: 100vh;
                   position: fixed;
                   top: 0;
                   left: 0;
@@ -63,7 +63,9 @@
                   z-index: 1000;
                   box-shadow: var(--shadow-medium);
                   transition: transform 0.3s ease;
-                  overflow-y: auto;
+                  display: flex;
+                  flex-direction: column;
+                  overflow: hidden;
             }
 
             .sidebar.collapsed {
@@ -77,6 +79,7 @@
                   background: var(--primary-color);
                   color: var(--secondary-color);
                   text-align: center;
+                  flex-shrink: 0;
             }
 
             .logo-container {
@@ -129,12 +132,17 @@
                   border-radius: var(--border-radius-lg);
                   box-shadow: var(--shadow-light);
                   overflow: hidden;
+                  flex: 1;
+                  display: flex;
+                  flex-direction: column;
+                  min-height: 0;
             }
 
             .filters-header {
                   background: var(--primary-light);
                   border-bottom: 1px solid var(--border-color);
                   padding: 1.5rem;
+                  flex-shrink: 0;
             }
 
             .filters-title {
@@ -149,6 +157,9 @@
 
             .filters-body {
                   padding: 1.5rem;
+                  overflow-y: auto;
+                  flex: 1;
+                  min-height: 0;
             }
 
             /* Form Inputs */
@@ -195,6 +206,61 @@
                   outline: none;
                   border-color: var(--primary-color);
                   box-shadow: 0 0 0 3px rgba(63, 21, 98, 0.1);
+            }
+
+            /* Enhanced Select Field Styling */
+            select.form-control {
+                  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+                  background-position: right 0.75rem center;
+                  background-repeat: no-repeat;
+                  background-size: 1rem;
+                  padding-right: 3rem;
+                  appearance: none;
+                  cursor: pointer;
+            }
+
+            select.form-control:hover {
+                  border-color: var(--primary-color);
+                  background-color: var(--primary-light);
+            }
+
+            select.form-control:focus {
+                  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233f1562' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            }
+
+            select.form-control option {
+                  background: var(--bg-white);
+                  color: var(--text-primary);
+                  padding: 0.75rem;
+                  font-size: 0.95rem;
+            }
+
+            select.form-control option:hover,
+            select.form-control option:checked {
+                  background: var(--primary-light);
+                  color: var(--primary-color);
+            }
+
+            /* Special styling for experience and gender selects */
+            #experience, #gender {
+                  font-weight: 500;
+                  background-color: var(--bg-white);
+                  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233f1562' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+                  border: 2px solid var(--border-color);
+                  box-shadow: var(--shadow-light);
+            }
+
+            #experience:focus, #gender:focus {
+                  border-color: var(--primary-color);
+                  box-shadow: 0 0 0 3px rgba(63, 21, 98, 0.15);
+                  background-color: rgba(63, 21, 98, 0.02);
+            }
+
+            #experience:hover, #gender:hover {
+                  border-color: var(--primary-color);
+                  background-color: rgba(63, 21, 98, 0.05);
+                  transform: translateY(-1px);
+                  box-shadow: var(--shadow-medium);
             }
 
             /* Search Button */
@@ -698,6 +764,28 @@
                               </div>
                         </div>
 
+                        <div class="input-group">
+                              <label class="input-label">Experience</label>
+                              <div style="position: relative;">
+                                    <i class="fas fa-briefcase input-icon"></i>
+                                    <select id="experience" class="form-control">
+                                          <option value="">Select Experience</option>
+                                    </select>
+                              </div>
+                        </div>
+
+                        <div class="input-group">
+                              <label class="input-label">Gender</label>
+                              <div style="position: relative;">
+                                    <i class="fas fa-venus-mars input-icon"></i>
+                                    <select id="gender" class="form-control">
+                                          <option value="">Select Gender</option>
+                                          <option value="5">Male</option>
+                                          <option value="1">Female</option>
+                                    </select>
+                              </div>
+                        </div>
+
                         <button class="btn-search" onclick="filterCandidates()">
                               <i class="fas fa-search"></i>
                               Search Candidates
@@ -748,6 +836,28 @@
             let currentPage = 1;
             let searchPerformed = false;
 
+            // Function to populate experience dropdown with unique values
+            function populateExperienceOptions() {
+                  const experienceSet = new Set();
+                  candidates.forEach(candidate => {
+                        if (candidate.Experience && candidate.Experience.trim() !== '') {
+                              experienceSet.add(candidate.Experience.trim());
+                        }
+                  });
+                  
+                  const experienceSelect = document.getElementById('experience');
+                  // Clear existing options except the first one
+                  experienceSelect.innerHTML = '<option value="">Select Experience</option>';
+                  
+                  // Sort and add unique experience values
+                  Array.from(experienceSet).sort().forEach(exp => {
+                        const option = document.createElement('option');
+                        option.value = exp;
+                        option.textContent = exp;
+                        experienceSelect.appendChild(option);
+                  });
+            }
+
             // Mobile sidebar toggle
             function toggleSidebar() {
                   const sidebar = document.getElementById('sidebar');
@@ -775,6 +885,7 @@
                   complete: function (results) {
                         candidates = results.data.filter(row => row.Name && row.Name.trim() !== '');
                         filtered = candidates;
+                        populateExperienceOptions();
                         renderResults();
                   },
                   error: function (error) {
@@ -793,9 +904,11 @@
                   const role = document.getElementById("role").value.toLowerCase().trim();
                   const name = document.getElementById("name").value.toLowerCase().trim();
                   const contact = document.getElementById("contact").value.trim();
+                  const experience = document.getElementById("experience").value.trim();
+                  const gender = document.getElementById("gender").value.trim();
 
                   // Require at least one input
-                  if (!role && !name && !contact) {
+                  if (!role && !name && !contact && !experience && !gender) {
                         alert("Please enter at least one search filter.");
                         searchPerformed = false;
                         filtered = [];
@@ -808,8 +921,10 @@
                         const matchesRole = !role || (row["Job Type"] && row["Job Type"].toLowerCase().includes(role));
                         const matchesName = !name || (row["Name"] && row["Name"].toLowerCase().includes(name));
                         const matchesContact = !contact || (row["Contact"] && row["Contact"].includes(contact));
+                        const matchesExperience = !experience || (row["Experience"] && row["Experience"].toLowerCase().includes(experience.toLowerCase()));
+                        const matchesGender = !gender || (row["Gender"] && row["Gender"].toString() === gender);
 
-                        return matchesRole && matchesName && matchesContact;
+                        return matchesRole && matchesName && matchesContact && matchesExperience && matchesGender;
                   });
 
                   currentPage = 1;
@@ -919,6 +1034,11 @@
                                     <i class="fas fa-clock info-icon"></i>
                                     <span class="info-label">Experience:</span>
                                     <span class="info-value">${row.Experience || 'N/A'}</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-venus-mars info-icon"></i>
+                                    <span class="info-label">Gender:</span>
+                                    <span class="info-value">${row.Gender === '5' ? 'Male' : row.Gender === '1' ? 'Female' : 'N/A'}</span>
                                 </div>
                             </div>
                             <div class="action-buttons">
